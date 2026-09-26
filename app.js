@@ -5,6 +5,7 @@
   const notes = window.DEVICE_NOTES || [];
   const glossary = window.DEVICE_GLOSSARY || [];
   const sceneSummaries = window.SCENE_SUMMARIES || {};
+  const lineQuestions = window.LINE_QUESTIONS || [];
   const passageRoot = document.getElementById('passages');
   const sceneSelect = document.getElementById('sceneSelect');
   const searchInput = document.getElementById('searchInput');
@@ -29,7 +30,8 @@
     activeTab: 'overview',
     selected: null,
     fontScale: 1,
-    selectedWord: null
+    selectedWord: null,
+    selectedQuestion: null
   };
 
   const ANNOTATION_KEY = 'romeo-juliet-teacher-annotations-v1';
@@ -115,6 +117,30 @@
     });
   }
 
+  function appendLineText(button, passage, line, lineIndex) {
+    const attached = lineQuestions
+      .filter((question) => question.passageId === passage.id && question.lineIndex === lineIndex)
+      .map((question) => ({ question, start: line.indexOf(question.anchor) }))
+      .filter((item) => item.start >= 0)
+      .sort((a, b) => a.start - b.start);
+    let cursor = 0;
+    attached.forEach(({ question, start }) => {
+      if (start < cursor) return;
+      appendClickableWords(button, line.slice(cursor, start));
+      const fragment = make('mark', 'question-highlight');
+      fragment.title = 'A scene question is attached to this phrase';
+      appendClickableWords(fragment, question.anchor);
+      button.appendChild(fragment);
+      const trigger = make('button', 'question-trigger', '?');
+      trigger.type = 'button';
+      trigger.dataset.questionId = question.id;
+      trigger.setAttribute('aria-label', `Open question about “${question.anchor}”`);
+      button.appendChild(trigger);
+      cursor = start + question.anchor.length;
+    });
+    appendClickableWords(button, line.slice(cursor));
+  }
+
   function sceneLabel(scene) {
     return scene === 'Prologue' ? 'Prologue' : scene.replace(', ', ' · ');
   }
@@ -177,7 +203,7 @@
       button.dataset.passage = passage.id;
       button.dataset.line = String(index);
       button.dataset.version = 'original';
-      appendClickableWords(button, line);
+      appendLineText(button, passage, line, index);
       button.setAttribute('aria-label', `Select original text: ${line}`);
       lines.appendChild(button);
     });
@@ -286,6 +312,15 @@
     return card;
   }
 
+  function renderQuestionCard(question) {
+    const card = make('section', 'scene-question-card');
+    card.appendChild(make('p', 'question-type', question.type));
+    card.appendChild(make('h3', '', question.question));
+    card.appendChild(make('p', 'possible-answer-label', 'Possible answer'));
+    card.appendChild(make('p', 'possible-answer-copy', question.answer));
+    return card;
+  }
+
   function showSceneOverview(openOnMobile = false) {
     state.activeTab = 'overview';
     updateTabs();
@@ -376,8 +411,8 @@
     updateTabs();
     const passage = data.passages.find((item) => item.id === selection.passageId);
     if (!passage) return;
-    inspectorTitle.textContent = selection.version === 'modern' ? 'Modern-text note' : 'Line note';
-    mobileNotesButton.childNodes[0].textContent = 'Open line notes ';
+    inspectorTitle.textContent = state.selectedQuestion ? 'Scene question' : (selection.version === 'modern' ? 'Modern-text note' : 'Line note');
+    mobileNotesButton.childNodes[0].textContent = state.selectedQuestion ? 'Open scene question ' : 'Open line notes ';
     inspectorContent.textContent = '';
 
     const kicker = make('p', 'selection-kicker');
@@ -392,6 +427,8 @@
       ? (passage.original || []).join(' ')
       : passage.modern;
     if (paired) inspectorContent.appendChild(make('p', 'selected-modern', paired));
+
+    if (state.selectedQuestion) inspectorContent.appendChild(renderQuestionCard(state.selectedQuestion));
 
     if (state.selectedWord) {
       const clean = norm(state.selectedWord).replace(/ /g, '');
@@ -477,6 +514,7 @@
     searchInput.value = '';
     state.selected = null;
     state.selectedWord = null;
+    state.selectedQuestion = null;
     renderReader();
     showSceneOverview(true);
   }
@@ -485,11 +523,25 @@
     const text = [...(passage.original || []), passage.modern || ''].filter(Boolean).join(' ').trim();
     state.selected = { passageId: passage.id, lineIndex: -1, version, text };
     state.selectedWord = null;
+    state.selectedQuestion = null;
     renderReader();
     renderSelection(state.selected);
   }
 
   function handleTextClick(event) {
+    const questionTrigger = event.target.closest('[data-question-id]');
+    if (questionTrigger) {
+      const question = lineQuestions.find((item) => item.id === questionTrigger.dataset.questionId);
+      const passage = question && data.passages.find((item) => item.id === question.passageId);
+      if (question && passage) {
+        state.selectedQuestion = question;
+        state.selectedWord = null;
+        state.selected = { passageId: passage.id, lineIndex: question.lineIndex, version: 'original', text: passage.original[question.lineIndex] };
+        renderReader();
+        renderSelection(state.selected);
+      }
+      return;
+    }
     const word = event.target.closest('.word-token');
     const button = event.target.closest('[data-passage]');
     if (!button) return;
@@ -502,12 +554,14 @@
       : (lineIndex < 0 ? (passage.original || []).join(' ') : passage.original[lineIndex]);
     state.selected = { passageId: passage.id, lineIndex, version, text };
     state.selectedWord = word ? word.dataset.word : null;
+    state.selectedQuestion = null;
     renderReader();
     renderSelection(state.selected);
     if (word) showWordMeaning(word.dataset.word, state.selected);
   }
 
   passageRoot.addEventListener('keydown', (event) => {
+    if (event.target.closest('.question-trigger')) return;
     const word = event.target.closest('.word-token');
     if (word && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault(); word.click();
