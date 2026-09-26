@@ -26,7 +26,7 @@ button { color: inherit; }
 button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #c57d82; outline-offset: 3px; }
 .skip-link { position: absolute; top: -50px; left: 1rem; background: var(--ink); color: white; padding: .7rem 1rem; z-index: 10; }
 .skip-link:focus { top: 1rem; }
-.site-header { height: 76px; border-bottom: 1px solid rgba(86, 68, 66, .12); background: rgba(255,253,249,.75); }
+.site-header { position: sticky; top: 0; z-index: 30; height: 76px; border-bottom: 1px solid rgba(86, 68, 66, .12); background: rgba(255,253,249,.92); backdrop-filter: blur(12px); }
 .header-inner { max-width: 1320px; height: 100%; margin: auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; }
 .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: var(--ink); }
 .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--wine); color: #fff8f1; font-family: Georgia, serif; font-size: 15px; letter-spacing: -.08em; box-shadow: 0 4px 12px rgba(119,59,78,.17); }
@@ -37,6 +37,9 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .header-nav { display: flex; align-items: center; gap: 27px; }
 .header-nav a, .header-nav button { color: #57515b; font-size: .87rem; font-weight: 600; text-decoration: none; background: none; border: 0; cursor: pointer; padding: 9px 0; }
 .header-nav a:hover, .header-nav button:hover { color: var(--wine); }
+.header-nav .litcharts-button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--wine); border-radius: 999px; background: var(--wine); color: #fff; font-weight: 750; white-space: nowrap; }
+.header-nav .litcharts-button:hover { border-color: var(--wine-dark); background: var(--wine-dark); color: #fff; }
+.litcharts-short-label { display: none; }
 main { max-width: 1320px; margin: auto; padding: 0 28px 52px; }
 .hero { min-height: 340px; position: relative; display: grid; grid-template-columns: 1.25fr .75fr; align-items: center; overflow: hidden; border-bottom: 1px solid rgba(86,68,66,.1); }
 .hero-copy { padding: 48px 0 44px; position: relative; z-index: 1; }
@@ -196,8 +199,16 @@ h1, h2, h3, p { margin-top: 0; }
 }
 @media (max-width: 600px) {
   .site-header { height: 65px; }
-  .header-nav { gap: 15px; }
-  .header-nav a, .header-nav button { font-size: .75rem; }
+  .header-inner { padding: 0 10px; }
+  .brand { gap: 7px; }
+  .brand-mark { width: 36px; height: 36px; font-size: 13px; }
+  .brand-copy strong { font-size: .74rem; }
+  .brand-copy small { display: none; }
+  .header-nav { gap: 7px; }
+  .header-nav a, .header-nav button { font-size: .64rem; }
+  .header-nav .litcharts-button { padding: 7px 8px; }
+  .litcharts-full-label { display: none; }
+  .litcharts-short-label { display: inline; }
   main { padding: 0 12px 28px; }
   .hero { min-height: 310px; display: block; }
   .hero-copy { padding: 37px 3px 32px; }
