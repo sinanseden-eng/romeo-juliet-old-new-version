@@ -150,6 +150,34 @@
     return [...(passage.original || []), passage.modern || ''].join(' ');
   }
 
+  function modernLines(passage) {
+    const text = String(passage.modern || '').trim();
+    if (!text) return [];
+    const sentences = text.match(/[^.!?]+(?:[.!?]+["'’”]?|$)/g) || [text];
+    return sentences.map((line) => line.trim()).filter(Boolean);
+  }
+
+  function overlapIndexes(sourceCount, sourceIndex, targetCount) {
+    if (sourceIndex < 0 || sourceCount < 1 || targetCount < 1) return [];
+    const sourceStart = sourceIndex / sourceCount;
+    const sourceEnd = (sourceIndex + 1) / sourceCount;
+    const indexes = [];
+    for (let targetIndex = 0; targetIndex < targetCount; targetIndex += 1) {
+      const targetStart = targetIndex / targetCount;
+      const targetEnd = (targetIndex + 1) / targetCount;
+      if (Math.min(sourceEnd, targetEnd) - Math.max(sourceStart, targetStart) > 0.0001) indexes.push(targetIndex);
+    }
+    return indexes;
+  }
+
+  function correspondingModernIndexes(passage, originalIndex) {
+    return overlapIndexes((passage.original || []).length, originalIndex, modernLines(passage).length);
+  }
+
+  function correspondingOriginalIndexes(passage, modernIndex) {
+    return overlapIndexes(modernLines(passage).length, modernIndex, (passage.original || []).length);
+  }
+
   function renderOriginalCell(passage) {
     const cell = make('div', 'passage-cell original-cell');
     const header = make('div', 'passage-label-row');
@@ -185,18 +213,34 @@
 
   function renderModernCell(passage) {
     const cell = make('div', 'passage-cell modern-cell');
+    const header = make('div', 'passage-label-row');
     const label = make('div', 'speaker-label', passage.kind === 'stage' ? 'Stage direction · modern' : 'Modern English');
-    cell.appendChild(label);
+    header.appendChild(label);
     if (passage.modern) {
-      const saved = annotationFor(passage.id, 'modern', -1);
-      const button = make('button', `modern-text${passage.kind === 'stage' ? ' stage-line' : ''}${isTagged(passage.modern) ? ' is-annotated' : ''}${saved.color ? ` teacher-highlight highlight-${saved.color}` : ''}${saved.note ? ' has-teacher-note' : ''}`);
-      button.type = 'button';
-      button.dataset.passage = passage.id;
-      button.dataset.line = '-1';
-      button.dataset.version = 'modern';
-      button.textContent = passage.modern;
-      button.setAttribute('aria-label', `Select modern English passage: ${passage.modern}`);
-      cell.appendChild(button);
+      const selectWhole = make('button', 'select-passage', passage.kind === 'stage' ? 'Select cue' : 'Select passage');
+      selectWhole.type = 'button';
+      selectWhole.dataset.passage = passage.id;
+      selectWhole.dataset.line = '-1';
+      selectWhole.dataset.version = 'modern';
+      selectWhole.setAttribute('aria-label', 'Select the complete modern-English passage');
+      header.appendChild(selectWhole);
+    }
+    cell.appendChild(header);
+    const segments = modernLines(passage);
+    if (segments.length) {
+      const lines = make('div', 'speech-lines modern-lines');
+      segments.forEach((line, index) => {
+        const saved = annotationFor(passage.id, 'modern', index);
+        const button = make('button', `modern-text${passage.kind === 'stage' ? ' stage-line' : ''}${isTagged(line) ? ' is-annotated' : ''}${saved.color ? ` teacher-highlight highlight-${saved.color}` : ''}${saved.note ? ' has-teacher-note' : ''}`);
+        button.type = 'button';
+        button.dataset.passage = passage.id;
+        button.dataset.line = String(index);
+        button.dataset.version = 'modern';
+        button.textContent = line;
+        button.setAttribute('aria-label', `Select modern English line: ${line}`);
+        lines.appendChild(button);
+      });
+      cell.appendChild(lines);
     } else {
       const note = make('p', 'reflow-note', 'The supplied modern column groups this speech with a nearby passage; its wording appears in sequence elsewhere.');
       cell.appendChild(note);
@@ -218,9 +262,29 @@
     card.appendChild(renderModernCell(passage));
 
     if (state.selected && state.selected.passageId === passage.id) {
-      const activeSelector = `.verse-line[data-line="${state.selected.lineIndex}"][data-version="${state.selected.version}"]`;
-      const active = card.querySelector(activeSelector) || card.querySelector('.modern-text');
+      const selected = state.selected;
+      const selectedClass = selected.version === 'modern' ? '.modern-text' : '.verse-line';
+      const active = card.querySelector(`${selectedClass}[data-line="${selected.lineIndex}"][data-version="${selected.version}"]`);
       if (active) active.classList.add('is-active');
+
+      if (selected.lineIndex >= 0 && selected.version === 'original') {
+        correspondingModernIndexes(passage, selected.lineIndex).forEach((index) => {
+          const counterpart = card.querySelector(`.modern-text[data-line="${index}"]`);
+          if (counterpart) {
+            counterpart.classList.add('is-corresponding');
+            counterpart.title = 'Corresponding Modern English';
+          }
+        });
+      }
+      if (selected.lineIndex >= 0 && selected.version === 'modern') {
+        correspondingOriginalIndexes(passage, selected.lineIndex).forEach((index) => {
+          const counterpart = card.querySelector(`.verse-line[data-line="${index}"]`);
+          if (counterpart) {
+            counterpart.classList.add('is-corresponding');
+            counterpart.title = 'Corresponding Shakespearean line';
+          }
+        });
+      }
     }
     return card;
   }
@@ -370,10 +434,29 @@
 
     const quote = make('blockquote', 'selected-quote', selection.text);
     inspectorContent.appendChild(quote);
-    const paired = selection.version === 'modern'
-      ? (passage.original || []).join(' ')
-      : passage.modern;
-    if (paired) inspectorContent.appendChild(make('p', 'selected-modern', paired));
+    let paired = '';
+    let pairedLabel = '';
+    if (selection.version === 'original') {
+      const segments = modernLines(passage);
+      const indexes = selection.lineIndex < 0
+        ? segments.map((_, index) => index)
+        : correspondingModernIndexes(passage, selection.lineIndex);
+      paired = indexes.map((index) => segments[index]).filter(Boolean).join(' ');
+      pairedLabel = selection.lineIndex < 0 ? 'Modern English passage' : 'Corresponding Modern English';
+    } else {
+      const originals = passage.original || [];
+      const indexes = selection.lineIndex < 0
+        ? originals.map((_, index) => index)
+        : correspondingOriginalIndexes(passage, selection.lineIndex);
+      paired = indexes.map((index) => originals[index]).filter(Boolean).join(' ');
+      pairedLabel = selection.lineIndex < 0 ? 'Original passage' : 'Corresponding Shakespearean line';
+    }
+    if (paired) {
+      const correspondence = make('section', 'correspondence-box');
+      correspondence.appendChild(make('p', 'correspondence-label', pairedLabel));
+      correspondence.appendChild(make('p', 'selected-modern', paired));
+      inspectorContent.appendChild(correspondence);
+    }
 
     if (state.selectedWord) {
       const clean = norm(state.selectedWord).replace(/ /g, '');
@@ -456,6 +539,14 @@
     renderSelection(state.selected);
   }
 
+  function focusCorrespondingLine(passageId, version) {
+    const card = passageRoot.querySelector(`[data-id="${passageId}"]`);
+    if (!card || state.mode !== 'compare') return;
+    const selector = version === 'original' ? '.modern-text.is-corresponding' : '.verse-line.is-corresponding';
+    const counterpart = card.querySelector(selector);
+    if (counterpart) counterpart.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+  }
+
   function handleTextClick(event) {
     const word = event.target.closest('.word-token');
     const button = event.target.closest('[data-passage]');
@@ -465,12 +556,13 @@
     const version = button.dataset.version || 'original';
     const lineIndex = Number(button.dataset.line);
     const text = version === 'modern'
-      ? passage.modern
+      ? (lineIndex < 0 ? passage.modern : modernLines(passage)[lineIndex])
       : (lineIndex < 0 ? (passage.original || []).join(' ') : passage.original[lineIndex]);
     state.selected = { passageId: passage.id, lineIndex, version, text };
     state.selectedWord = word ? word.dataset.word : null;
     renderReader();
     renderSelection(state.selected);
+    focusCorrespondingLine(passage.id, version);
     if (word) showWordMeaning(word.dataset.word, state.selected);
   }
 
