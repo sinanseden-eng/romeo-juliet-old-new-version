@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4efe7">
+  <meta name="description" content="Read Romeo and Juliet in Shakespeare's original and a modern-English version, with clickable notes on poetic and literary devices.">
+  <title>Romeo & Juliet — Two Texts, One Stage</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#reader">Skip to the play</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="Romeo and Juliet reader home">
+        <span class="brand-mark" aria-hidden="true">R<span>&</span>J</span>
+        <span class="brand-copy"><strong>Two texts</strong><small>one stage</small></span>
+      </a>
+      <nav class="header-nav" aria-label="Page navigation">
+        <a href="#reader">Read the play</a>
+        <button type="button" id="openGlossaryTop">Device guide</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> A guided reading of Shakespeare</p>
+        <h1 id="page-title">Romeo <em>&</em> Juliet</h1>
+        <p class="hero-subtitle">Read Shakespeare’s original beside a modern-English version. Choose a line or speech to see how the language works.</p>
+        <div class="hero-facts" aria-label="Features">
+          <span><b>01</b> Original and modern text</span>
+          <span><b>02</b> Clickable device notes</span>
+          <span><b>03</b> All five acts</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="moon"></div>
+        <div class="balcony-line"></div>
+        <div class="rose-stem"><i></i><b></b></div>
+        <span class="art-caption">Verona · under the same sky</span>
+      </div>
+    </section>
+
+    <section class="reader-shell" id="reader" aria-label="Play reader">
+      <div class="reader-toolbar">
+        <div class="toolbar-topline">
+          <div>
+            <p class="eyebrow compact">Choose your way in</p>
+            <h2>Read the play</h2>
+          </div>
+          <div class="text-size-control" aria-label="Text size">
+            <span>Text size</span>
+            <button type="button" id="smallerText" aria-label="Make text smaller">A−</button>
+            <button type="button" id="largerText" aria-label="Make text larger">A+</button>
+          </div>
+        </div>
+        <div class="controls-row">
+          <label class="scene-picker">
+            <span>Act and scene</span>
+            <select id="sceneSelect" aria-label="Choose an act and scene"></select>
+          </label>
+          <label class="search-box">
+            <span class="sr-only">Search the play</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+            <input id="searchInput" type="search" placeholder="Find a line, phrase, or character" autocomplete="off">
+            <button type="button" id="clearSearch" aria-label="Clear search" hidden>×</button>
+          </label>
+        </div>
+        <div class="toolbar-bottomline">
+          <div class="mode-tabs" role="group" aria-label="Text display mode">
+            <button type="button" class="mode-button is-active" data-mode="compare" aria-pressed="true">Compare</button>
+            <button type="button" class="mode-button" data-mode="original" aria-pressed="false">Original</button>
+            <button type="button" class="mode-button" data-mode="modern" aria-pressed="false">Modern</button>
+          </div>
+          <div class="scene-nav">
+            <button type="button" id="prevScene" aria-label="Previous scene">← <span>Previous</span></button>
+            <button type="button" id="nextScene" aria-label="Next scene"><span>Next</span> →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="reader-layout">
+        <section class="reading-column" aria-labelledby="currentSceneTitle">
+          <div class="scene-heading">
+            <div>
+              <p class="eyebrow compact" id="sceneKicker">The play begins</p>
+              <h2 id="currentSceneTitle">Prologue</h2>
+            </div>
+            <span class="passage-count" id="passageCount"></span>
+          </div>
+          <div class="column-labels" aria-hidden="true">
+            <span class="original-label"><i></i> Original text</span>
+            <span class="modern-label"><i></i> Modern English</span>
+          </div>
+          <p class="reader-instruction">Select a line for a focused note, or choose <b>Select speech</b> to explore the whole passage.</p>
+          <div id="passages" class="passages" aria-live="polite"></div>
+          <div id="emptyState" class="empty-state" hidden>
+            <span class="empty-icon">⌕</span>
+            <h3>No lines found</h3>
+            <p>Try a character name or a shorter phrase.</p>
+          </div>
+          <p class="end-note" id="endNote">End of this section. Choose another scene above to continue.</p>
+        </section>
+
+        <aside class="inspector" id="inspector" aria-labelledby="inspectorTitle">
+          <div class="inspector-head">
+            <div>
+              <p class="eyebrow compact">Your reading companion</p>
+              <h2 id="inspectorTitle">Explore the language</h2>
+            </div>
+            <button type="button" class="mobile-close" id="closeInspector" aria-label="Close device notes">×</button>
+          </div>
+          <div class="inspector-tabs" role="tablist" aria-label="Reading companion views">
+            <button type="button" class="inspector-tab is-active" id="notesTab" role="tab" aria-selected="true">Line notes</button>
+            <button type="button" class="inspector-tab" id="glossaryTab" role="tab" aria-selected="false">Device guide</button>
+          </div>
+          <div class="inspector-content" id="inspectorContent" role="tabpanel" aria-live="polite">
+            <div class="welcome-note">
+              <div class="note-symbol" aria-hidden="true">✦</div>
+              <h3>Pick a line to begin</h3>
+              <p>Select any original line or modern passage. Notes will connect the language to poetic rhythm, imagery, wordplay, and dramatic devices.</p>
+              <button type="button" class="text-link" id="browseDevices">Browse the device guide <span>→</span></button>
+            </div>
+            <div class="quick-tip">
+              <span class="tip-icon" aria-hidden="true">i</span>
+              <p><strong>Reading tip</strong><br>Use <b>Compare</b> to notice how the modern version carries the idea across in clearer language.</p>
+            </div>
+          </div>
+          <div class="inspector-foot"><span class="foot-mark">R&J</span><span>Read closely. The details are where the drama hides.</span></div>
+        </aside>
+      </div>
+      <button type="button" id="mobileNotesButton" class="mobile-notes-button">Open line notes <span>↗</span></button>
+    </section>
+
+    <section class="about-strip" aria-label="About this reader">
+      <div class="about-icon">✦</div>
+      <div><strong>One play, two voices.</strong><p>The original wording is paired with the modern-English text from the supplied <em>No Fear Shakespeare</em> edition. Select a line for a contextual note; use the device guide for quick definitions.</p></div>
+      <a href="#reader">Back to reading ↑</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Romeo & Juliet · A classroom reading companion</span>
+    <span>Original text by William Shakespeare · Modern text from the supplied No Fear Shakespeare edition by SparkNotes</span>
+  </footer>
+  <script src="play-data.js"></script>
+  <script src="devices.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
