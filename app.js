@@ -8,6 +8,7 @@
   const lineQuestions = window.LINE_QUESTIONS || [];
   const passageRoot = document.getElementById('passages');
   const sceneSelect = document.getElementById('sceneSelect');
+  const litChartsButton = document.getElementById('litChartsButton');
   const searchInput = document.getElementById('searchInput');
   const clearSearch = document.getElementById('clearSearch');
   const sceneTitle = document.getElementById('currentSceneTitle');
@@ -264,6 +265,7 @@
   }
 
   function renderReader() {
+    updateLitChartsLink();
     const visible = getVisiblePassages();
     const query = state.search.trim();
     const limited = query ? visible.slice(0, 90) : visible;
