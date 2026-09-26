@@ -26,8 +26,62 @@
     search: '',
     activeTab: 'notes',
     selected: null,
-    fontScale: 1
+    fontScale: 1,
+    selectedWord: null
   };
+
+  const ANNOTATION_KEY = 'romeo-juliet-teacher-annotations-v1';
+  const HIGHLIGHT_COLORS = ['yellow', 'rose', 'blue', 'green'];
+  const wordMeanings = {
+    art: 'are', aye: 'yes', anon: 'soon; in a moment', aught: 'anything',
+    beseech: 'ask or beg urgently', betwixt: 'between', churl: 'a rude or mean person',
+    dost: 'do', doth: 'does', ere: 'before', fain: 'gladly; willingly',
+    forsworn: 'having broken a promise or oath', fie: 'an expression of disgust or disapproval',
+    hither: 'to this place', hence: 'from here; away', hast: 'have', hath: 'has',
+    hie: 'go quickly', kin: 'family or relatives', knave: 'a dishonest man',
+    marry: 'indeed; certainly (an old exclamation)', methinks: 'it seems to me',
+    nay: 'no', naught: 'nothing', oft: 'often', prithee: 'please; I ask you',
+    shalt: 'shall', thence: 'from that place', thee: 'you (object form)',
+    thine: 'yours; your before a vowel', thou: 'you (subject form)',
+    thy: 'your', tis: 'it is', twas: 'it was', wherefore: 'why',
+    whence: 'from where', wilt: 'will', withal: 'with it; in addition',
+    wouldst: 'would', wert: 'were', artless: 'innocent or natural; without deceit',
+    bawd: 'a person who arranges sexual encounters', chamber: 'a private room or bedroom',
+    civil: 'relating to citizens; also courteous', counsel: 'advice, or a private plan',
+    discourse: 'conversation or formal speech', enmity: 'deep hostility',
+    fair: 'beautiful; also just or favourable', fortune: 'fate or luck',
+    gall: 'bitterness or resentment', grace: 'virtue, favour, or divine blessing',
+    humour: 'mood or temperament', issue: 'a result; also a child or descendant',
+    maid: 'an unmarried young woman', maiden: 'an unmarried young woman; virginal',
+    misadventure: 'an unlucky accident', Montague: 'a member of Romeo’s family',
+    Capulet: 'a member of Juliet’s family', shrift: 'confession and forgiveness of sins',
+    sirrah: 'a form of address to a man of lower rank, often sharply',
+    soft: 'wait; be quiet (when used as an exclamation)', suit: 'a request or courtship',
+    temper: 'state of mind; also to soften or moderate', villain: 'a wicked person; historically, a low-born servant',
+    wanton: 'playful or uncontrolled; sometimes sexually improper',
+    wench: 'a young woman; historically informal and sometimes insulting',
+    whereat: 'at which', whereon: 'on which', whereupon: 'after which; as a result',
+    yonder: 'over there', youth: 'a young person; young age'
+  };
+
+  function loadAnnotations() {
+    try { return JSON.parse(localStorage.getItem(ANNOTATION_KEY) || '{}'); }
+    catch (_) { return {}; }
+  }
+
+  let annotations = loadAnnotations();
+
+  function annotationId(passageId, version, lineIndex) {
+    return `${passageId}::${version}::${lineIndex}`;
+  }
+
+  function annotationFor(passageId, version, lineIndex) {
+    return annotations[annotationId(passageId, version, lineIndex)] || {};
+  }
+
+  function saveAnnotations() {
+    localStorage.setItem(ANNOTATION_KEY, JSON.stringify(annotations));
+  }
 
   const norm = (value) => String(value || '')
     .toLowerCase()
@@ -41,6 +95,22 @@
     if (className) node.className = className;
     if (text !== undefined && text !== null) node.textContent = text;
     return node;
+  }
+
+  function appendClickableWords(button, text) {
+    const parts = String(text).split(/([A-Za-z]+(?:['’][A-Za-z]+)?)/g);
+    parts.forEach((part) => {
+      if (!/^[A-Za-z]+(?:['’][A-Za-z]+)?$/.test(part)) {
+        button.appendChild(document.createTextNode(part));
+        return;
+      }
+      const word = make('span', 'word-token', part);
+      word.dataset.word = part;
+      word.setAttribute('role', 'button');
+      word.setAttribute('tabindex', '0');
+      word.setAttribute('aria-label', `Define ${part}`);
+      button.appendChild(word);
+    });
   }
 
   function sceneLabel(scene) {
@@ -98,12 +168,14 @@
       lines.appendChild(make('p', 'reflow-note', passage.kind === 'stage' ? 'This stage cue appears in the modern column of the supplied edition.' : 'The supplied original groups this speech with a nearby passage.'));
     }
     (passage.original || []).forEach((line, index) => {
-      const button = make('button', `verse-line${passage.kind === 'stage' ? ' stage-line' : ''}${isTagged(line) ? ' is-annotated' : ''}`);
-      button.type = 'button';
+      const saved = annotationFor(passage.id, 'original', index);
+      const button = make('div', `verse-line${passage.kind === 'stage' ? ' stage-line' : ''}${isTagged(line) ? ' is-annotated' : ''}${saved.color ? ` teacher-highlight highlight-${saved.color}` : ''}${saved.note ? ' has-teacher-note' : ''}`);
+      button.setAttribute('role', 'button');
+      button.setAttribute('tabindex', '0');
       button.dataset.passage = passage.id;
       button.dataset.line = String(index);
       button.dataset.version = 'original';
-      button.textContent = line;
+      appendClickableWords(button, line);
       button.setAttribute('aria-label', `Select original text: ${line}`);
       lines.appendChild(button);
     });
@@ -116,7 +188,8 @@
     const label = make('div', 'speaker-label', passage.kind === 'stage' ? 'Stage direction · modern' : 'Modern English');
     cell.appendChild(label);
     if (passage.modern) {
-      const button = make('button', `modern-text${passage.kind === 'stage' ? ' stage-line' : ''}${isTagged(passage.modern) ? ' is-annotated' : ''}`);
+      const saved = annotationFor(passage.id, 'modern', -1);
+      const button = make('button', `modern-text${passage.kind === 'stage' ? ' stage-line' : ''}${isTagged(passage.modern) ? ' is-annotated' : ''}${saved.color ? ` teacher-highlight highlight-${saved.color}` : ''}${saved.note ? ' has-teacher-note' : ''}`);
       button.type = 'button';
       button.dataset.passage = passage.id;
       button.dataset.line = '-1';
@@ -211,6 +284,76 @@
     return card;
   }
 
+  function renderTeacherTools(selection) {
+    const id = annotationId(selection.passageId, selection.version, selection.lineIndex);
+    const saved = annotations[id] || {};
+    const section = make('section', 'teacher-tools');
+    section.appendChild(make('p', 'device-type', 'Teacher annotation'));
+    section.appendChild(make('h3', '', 'Highlight & note'));
+
+    const colors = make('div', 'highlight-options');
+    const none = make('button', `highlight-chip clear-chip${!saved.color ? ' is-selected' : ''}`, 'None');
+    none.type = 'button'; none.dataset.color = '';
+    colors.appendChild(none);
+    HIGHLIGHT_COLORS.forEach((color) => {
+      const chip = make('button', `highlight-chip chip-${color}${saved.color === color ? ' is-selected' : ''}`);
+      chip.type = 'button'; chip.dataset.color = color;
+      chip.setAttribute('aria-label', `${color} highlight`);
+      colors.appendChild(chip);
+    });
+    section.appendChild(colors);
+
+    const textarea = make('textarea', 'teacher-note-input');
+    textarea.rows = 4;
+    textarea.placeholder = 'Write a teaching note for this line…';
+    textarea.value = saved.note || '';
+    textarea.setAttribute('aria-label', 'Teacher note');
+    section.appendChild(textarea);
+    const actions = make('div', 'teacher-note-actions');
+    const status = make('span', 'save-status', saved.note ? 'Saved on this device' : '');
+    const save = make('button', 'save-note-button', 'Save note'); save.type = 'button';
+    actions.append(status, save); section.appendChild(actions);
+
+    colors.addEventListener('click', (event) => {
+      const chip = event.target.closest('[data-color]');
+      if (!chip) return;
+      const current = annotations[id] || {};
+      current.color = chip.dataset.color;
+      if (!current.color && !current.note) delete annotations[id]; else annotations[id] = current;
+      saveAnnotations(); renderReader(); renderSelection(selection);
+    });
+    save.addEventListener('click', () => {
+      const current = annotations[id] || {};
+      current.note = textarea.value.trim();
+      if (!current.color && !current.note) delete annotations[id]; else annotations[id] = current;
+      saveAnnotations();
+      status.textContent = current.note ? 'Saved on this device' : 'Note removed';
+      renderReader();
+    });
+    return section;
+  }
+
+  async function showWordMeaning(word, selection) {
+    const clean = norm(word).replace(/ /g, '');
+    state.selectedWord = word;
+    renderSelection(selection);
+    const box = inspectorContent.querySelector('.word-definition');
+    if (!box || wordMeanings[clean]) return;
+    try {
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(clean)}`);
+      if (!response.ok) throw new Error('No definition');
+      const entries = await response.json();
+      const meaning = entries?.[0]?.meanings?.[0];
+      const definition = meaning?.definitions?.[0]?.definition;
+      if (!definition || state.selectedWord !== word) return;
+      box.querySelector('.definition-copy').textContent = definition;
+      const part = box.querySelector('.word-part');
+      if (part) part.textContent = meaning.partOfSpeech || 'word';
+    } catch (_) {
+      if (state.selectedWord === word) box.querySelector('.definition-copy').textContent = 'No short dictionary entry was found. Use the modern-English passage below to work out its meaning in this context.';
+    }
+  }
+
   function renderSelection(selection) {
     state.activeTab = 'notes';
     updateTabs();
@@ -231,6 +374,20 @@
       ? (passage.original || []).join(' ')
       : passage.modern;
     if (paired) inspectorContent.appendChild(make('p', 'selected-modern', paired));
+
+    if (state.selectedWord) {
+      const clean = norm(state.selectedWord).replace(/ /g, '');
+      const definition = make('section', 'word-definition');
+      const heading = make('div', 'word-definition-head');
+      heading.appendChild(make('span', 'word-label', state.selectedWord));
+      heading.appendChild(make('span', 'word-part', wordMeanings[clean] ? 'Shakespearean usage' : 'Looking up…'));
+      definition.appendChild(heading);
+      definition.appendChild(make('p', 'definition-copy', wordMeanings[clean] || 'Finding a dictionary meaning…'));
+      definition.appendChild(make('p', 'definition-context', 'Read it in context with the modern-English passage shown above.'));
+      inspectorContent.appendChild(definition);
+    }
+
+    inspectorContent.appendChild(renderTeacherTools(selection));
 
     const direct = notesFor(selection.text);
     const related = notesFor(passageText(passage));
@@ -294,11 +451,13 @@
   function selectPassage(passage, version = 'original') {
     const text = [...(passage.original || []), passage.modern || ''].filter(Boolean).join(' ').trim();
     state.selected = { passageId: passage.id, lineIndex: -1, version, text };
+    state.selectedWord = null;
     renderReader();
     renderSelection(state.selected);
   }
 
   function handleTextClick(event) {
+    const word = event.target.closest('.word-token');
     const button = event.target.closest('[data-passage]');
     if (!button) return;
     const passage = data.passages.find((item) => item.id === button.dataset.passage);
@@ -309,9 +468,23 @@
       ? passage.modern
       : (lineIndex < 0 ? (passage.original || []).join(' ') : passage.original[lineIndex]);
     state.selected = { passageId: passage.id, lineIndex, version, text };
+    state.selectedWord = word ? word.dataset.word : null;
     renderReader();
     renderSelection(state.selected);
+    if (word) showWordMeaning(word.dataset.word, state.selected);
   }
+
+  passageRoot.addEventListener('keydown', (event) => {
+    const word = event.target.closest('.word-token');
+    if (word && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault(); word.click();
+      return;
+    }
+    const line = event.target.closest('.verse-line');
+    if (line && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault(); line.click();
+    }
+  });
 
   setupScenes();
   renderReader();
@@ -322,6 +495,7 @@
     state.search = '';
     searchInput.value = '';
     state.selected = null;
+    state.selectedWord = null;
     renderReader();
   });
   searchInput.addEventListener('input', () => {
