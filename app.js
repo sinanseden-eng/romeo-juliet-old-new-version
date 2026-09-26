@@ -157,25 +157,46 @@
     return sentences.map((line) => line.trim()).filter(Boolean);
   }
 
-  function overlapIndexes(sourceCount, sourceIndex, targetCount) {
-    if (sourceIndex < 0 || sourceCount < 1 || targetCount < 1) return [];
-    const sourceStart = sourceIndex / sourceCount;
-    const sourceEnd = (sourceIndex + 1) / sourceCount;
-    const indexes = [];
-    for (let targetIndex = 0; targetIndex < targetCount; targetIndex += 1) {
-      const targetStart = targetIndex / targetCount;
-      const targetEnd = (targetIndex + 1) / targetCount;
-      if (Math.min(sourceEnd, targetEnd) - Math.max(sourceStart, targetStart) > 0.0001) indexes.push(targetIndex);
-    }
-    return indexes;
+  function alignmentWeight(text) {
+    const words = String(text || '').match(/[A-Za-zÀ-ž'’]+/g) || [];
+    return Math.max(1, words.length);
+  }
+
+  function weightedRanges(items) {
+    const weights = items.map(alignmentWeight);
+    const total = weights.reduce((sum, weight) => sum + weight, 0);
+    let cursor = 0;
+    return weights.map((weight) => {
+      const range = { start: cursor / total, end: (cursor + weight) / total };
+      cursor += weight;
+      return range;
+    });
+  }
+
+  function overlapIndexes(sourceItems, sourceIndex, targetItems) {
+    if (sourceIndex < 0 || !sourceItems.length || !targetItems.length) return [];
+    const source = weightedRanges(sourceItems)[sourceIndex];
+    const scored = weightedRanges(targetItems).map((target, index) => {
+      const overlap = Math.max(0, Math.min(source.end, target.end) - Math.max(source.start, target.start));
+      return {
+        index,
+        overlap,
+        targetCoverage: overlap / (target.end - target.start),
+        sourceCoverage: overlap / (source.end - source.start)
+      };
+    }).filter((item) => item.overlap > 0.0001);
+    const strong = scored.filter((item) => item.targetCoverage >= 0.58 || item.sourceCoverage >= 0.72);
+    if (strong.length) return strong.map((item) => item.index);
+    const best = Math.max(...scored.map((item) => item.overlap), 0);
+    return scored.filter((item) => Math.abs(item.overlap - best) < 0.0001).map((item) => item.index);
   }
 
   function correspondingModernIndexes(passage, originalIndex) {
-    return overlapIndexes((passage.original || []).length, originalIndex, modernLines(passage).length);
+    return overlapIndexes(passage.original || [], originalIndex, modernLines(passage));
   }
 
   function correspondingOriginalIndexes(passage, modernIndex) {
-    return overlapIndexes(modernLines(passage).length, modernIndex, (passage.original || []).length);
+    return overlapIndexes(modernLines(passage), modernIndex, passage.original || []);
   }
 
   function renderOriginalCell(passage) {
