@@ -288,3 +288,12 @@ h1, h2, h3, p { margin-top: 0; }
 .scene-overview-card h3 { margin: 2px 0 11px; color: #392e32; font: 500 1.18rem/1.28 Georgia, serif; }
 .scene-summary-copy { margin: 0; color: #51474a; font-size: .9rem; line-height: 1.72; }
 .overview-tip { margin: 12px 2px; color: #817477; font-size: .78rem; line-height: 1.55; }
+.question-highlight { padding: 0 1px; border-radius: 2px; background: #fff0be; color: inherit; text-decoration: underline; text-decoration-color: #b88842; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+.question-highlight .word-token:hover, .question-highlight .word-token:focus-visible { background: #f6d98c; }
+.question-trigger { display: inline-grid; place-items: center; vertical-align: .16em; width: 18px; height: 18px; margin: 0 0 0 4px; padding: 0; border: 1px solid #8c5947; border-radius: 50%; background: #fffaf0; color: #704339; font: 800 .7rem/1 ui-sans-serif, system-ui, sans-serif; cursor: pointer; }
+.question-trigger:hover, .question-trigger:focus-visible { background: #8c5947; color: white; }
+.scene-question-card { margin: 13px 0 15px; padding: 15px; border: 1px solid #e6cfad; border-left: 4px solid #b88842; border-radius: 4px 11px 11px 4px; background: #fff9ec; }
+.question-type { margin: 0 0 7px; color: #95703b; font-size: .72rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.scene-question-card h3 { margin: 0 0 13px; color: #3e3333; font: 600 1rem/1.5 Georgia, serif; }
+.possible-answer-label { margin: 0 0 5px; color: #69796c; font-size: .76rem; font-weight: 800; }
+.possible-answer-copy { margin: 0; color: #51474a; font-size: .88rem; line-height: 1.65; }
