@@ -4,6 +4,7 @@
   const data = window.PLAY_DATA;
   const notes = window.DEVICE_NOTES || [];
   const glossary = window.DEVICE_GLOSSARY || [];
+  const sceneSummaries = window.SCENE_SUMMARIES || {};
   const passageRoot = document.getElementById('passages');
   const sceneSelect = document.getElementById('sceneSelect');
   const searchInput = document.getElementById('searchInput');
@@ -16,6 +17,7 @@
   const inspector = document.getElementById('inspector');
   const inspectorTitle = document.getElementById('inspectorTitle');
   const inspectorContent = document.getElementById('inspectorContent');
+  const overviewTab = document.getElementById('overviewTab');
   const notesTab = document.getElementById('notesTab');
   const glossaryTab = document.getElementById('glossaryTab');
   const mobileNotesButton = document.getElementById('mobileNotesButton');
@@ -24,7 +26,7 @@
     scene: 'Prologue',
     mode: 'compare',
     search: '',
-    activeTab: 'notes',
+    activeTab: 'overview',
     selected: null,
     fontScale: 1,
     selectedWord: null
@@ -150,55 +152,6 @@
     return [...(passage.original || []), passage.modern || ''].join(' ');
   }
 
-  function modernLines(passage) {
-    const text = String(passage.modern || '').trim();
-    if (!text) return [];
-    const sentences = text.match(/[^.!?]+(?:[.!?]+["'’”]?|$)/g) || [text];
-    return sentences.map((line) => line.trim()).filter(Boolean);
-  }
-
-  function alignmentWeight(text) {
-    const words = String(text || '').match(/[A-Za-zÀ-ž'’]+/g) || [];
-    return Math.max(1, words.length);
-  }
-
-  function weightedRanges(items) {
-    const weights = items.map(alignmentWeight);
-    const total = weights.reduce((sum, weight) => sum + weight, 0);
-    let cursor = 0;
-    return weights.map((weight) => {
-      const range = { start: cursor / total, end: (cursor + weight) / total };
-      cursor += weight;
-      return range;
-    });
-  }
-
-  function overlapIndexes(sourceItems, sourceIndex, targetItems) {
-    if (sourceIndex < 0 || !sourceItems.length || !targetItems.length) return [];
-    const source = weightedRanges(sourceItems)[sourceIndex];
-    const scored = weightedRanges(targetItems).map((target, index) => {
-      const overlap = Math.max(0, Math.min(source.end, target.end) - Math.max(source.start, target.start));
-      return {
-        index,
-        overlap,
-        targetCoverage: overlap / (target.end - target.start),
-        sourceCoverage: overlap / (source.end - source.start)
-      };
-    }).filter((item) => item.overlap > 0.0001);
-    const strong = scored.filter((item) => item.targetCoverage >= 0.58 || item.sourceCoverage >= 0.72);
-    if (strong.length) return strong.map((item) => item.index);
-    const best = Math.max(...scored.map((item) => item.overlap), 0);
-    return scored.filter((item) => Math.abs(item.overlap - best) < 0.0001).map((item) => item.index);
-  }
-
-  function correspondingModernIndexes(passage, originalIndex) {
-    return overlapIndexes(passage.original || [], originalIndex, modernLines(passage));
-  }
-
-  function correspondingOriginalIndexes(passage, modernIndex) {
-    return overlapIndexes(modernLines(passage), modernIndex, passage.original || []);
-  }
-
   function renderOriginalCell(passage) {
     const cell = make('div', 'passage-cell original-cell');
     const header = make('div', 'passage-label-row');
@@ -234,34 +187,18 @@
 
   function renderModernCell(passage) {
     const cell = make('div', 'passage-cell modern-cell');
-    const header = make('div', 'passage-label-row');
     const label = make('div', 'speaker-label', passage.kind === 'stage' ? 'Stage direction · modern' : 'Modern English');
-    header.appendChild(label);
+    cell.appendChild(label);
     if (passage.modern) {
-      const selectWhole = make('button', 'select-passage', passage.kind === 'stage' ? 'Select cue' : 'Select passage');
-      selectWhole.type = 'button';
-      selectWhole.dataset.passage = passage.id;
-      selectWhole.dataset.line = '-1';
-      selectWhole.dataset.version = 'modern';
-      selectWhole.setAttribute('aria-label', 'Select the complete modern-English passage');
-      header.appendChild(selectWhole);
-    }
-    cell.appendChild(header);
-    const segments = modernLines(passage);
-    if (segments.length) {
-      const lines = make('div', 'speech-lines modern-lines');
-      segments.forEach((line, index) => {
-        const saved = annotationFor(passage.id, 'modern', index);
-        const button = make('button', `modern-text${passage.kind === 'stage' ? ' stage-line' : ''}${isTagged(line) ? ' is-annotated' : ''}${saved.color ? ` teacher-highlight highlight-${saved.color}` : ''}${saved.note ? ' has-teacher-note' : ''}`);
-        button.type = 'button';
-        button.dataset.passage = passage.id;
-        button.dataset.line = String(index);
-        button.dataset.version = 'modern';
-        button.textContent = line;
-        button.setAttribute('aria-label', `Select modern English line: ${line}`);
-        lines.appendChild(button);
-      });
-      cell.appendChild(lines);
+      const saved = annotationFor(passage.id, 'modern', -1);
+      const button = make('button', `modern-text${passage.kind === 'stage' ? ' stage-line' : ''}${isTagged(passage.modern) ? ' is-annotated' : ''}${saved.color ? ` teacher-highlight highlight-${saved.color}` : ''}${saved.note ? ' has-teacher-note' : ''}`);
+      button.type = 'button';
+      button.dataset.passage = passage.id;
+      button.dataset.line = '-1';
+      button.dataset.version = 'modern';
+      button.textContent = passage.modern;
+      button.setAttribute('aria-label', `Select modern English passage: ${passage.modern}`);
+      cell.appendChild(button);
     } else {
       const note = make('p', 'reflow-note', 'The supplied modern column groups this speech with a nearby passage; its wording appears in sequence elsewhere.');
       cell.appendChild(note);
@@ -283,29 +220,9 @@
     card.appendChild(renderModernCell(passage));
 
     if (state.selected && state.selected.passageId === passage.id) {
-      const selected = state.selected;
-      const selectedClass = selected.version === 'modern' ? '.modern-text' : '.verse-line';
-      const active = card.querySelector(`${selectedClass}[data-line="${selected.lineIndex}"][data-version="${selected.version}"]`);
+      const activeSelector = `.verse-line[data-line="${state.selected.lineIndex}"][data-version="${state.selected.version}"]`;
+      const active = card.querySelector(activeSelector) || card.querySelector('.modern-text');
       if (active) active.classList.add('is-active');
-
-      if (selected.lineIndex >= 0 && selected.version === 'original') {
-        correspondingModernIndexes(passage, selected.lineIndex).forEach((index) => {
-          const counterpart = card.querySelector(`.modern-text[data-line="${index}"]`);
-          if (counterpart) {
-            counterpart.classList.add('is-corresponding');
-            counterpart.title = 'Corresponding Modern English';
-          }
-        });
-      }
-      if (selected.lineIndex >= 0 && selected.version === 'modern') {
-        correspondingOriginalIndexes(passage, selected.lineIndex).forEach((index) => {
-          const counterpart = card.querySelector(`.verse-line[data-line="${index}"]`);
-          if (counterpart) {
-            counterpart.classList.add('is-corresponding');
-            counterpart.title = 'Corresponding Shakespearean line';
-          }
-        });
-      }
     }
     return card;
   }
@@ -367,6 +284,21 @@
     effect.append(strong, document.createTextNode(note.effect));
     card.appendChild(effect);
     return card;
+  }
+
+  function showSceneOverview(openOnMobile = false) {
+    state.activeTab = 'overview';
+    updateTabs();
+    inspectorTitle.textContent = `${state.scene} overview`;
+    inspectorContent.textContent = '';
+    const card = make('article', 'scene-overview-card');
+    card.appendChild(make('p', 'device-type', 'Scene overview'));
+    card.appendChild(make('h3', '', state.scene));
+    card.appendChild(make('p', 'scene-summary-copy', sceneSummaries[state.scene] || 'A summary for this section is not available yet.'));
+    inspectorContent.appendChild(card);
+    inspectorContent.appendChild(make('p', 'overview-tip', 'Use this overview to introduce the scene, then select a line to explore its language.'));
+    mobileNotesButton.childNodes[0].textContent = 'Open scene overview ';
+    if (openOnMobile && window.matchMedia('(max-width: 820px)').matches) inspector.classList.add('is-open');
   }
 
   function renderTeacherTools(selection) {
@@ -445,6 +377,7 @@
     const passage = data.passages.find((item) => item.id === selection.passageId);
     if (!passage) return;
     inspectorTitle.textContent = selection.version === 'modern' ? 'Modern-text note' : 'Line note';
+    mobileNotesButton.childNodes[0].textContent = 'Open line notes ';
     inspectorContent.textContent = '';
 
     const kicker = make('p', 'selection-kicker');
@@ -455,29 +388,10 @@
 
     const quote = make('blockquote', 'selected-quote', selection.text);
     inspectorContent.appendChild(quote);
-    let paired = '';
-    let pairedLabel = '';
-    if (selection.version === 'original') {
-      const segments = modernLines(passage);
-      const indexes = selection.lineIndex < 0
-        ? segments.map((_, index) => index)
-        : correspondingModernIndexes(passage, selection.lineIndex);
-      paired = indexes.map((index) => segments[index]).filter(Boolean).join(' ');
-      pairedLabel = selection.lineIndex < 0 ? 'Modern English passage' : 'Corresponding Modern English';
-    } else {
-      const originals = passage.original || [];
-      const indexes = selection.lineIndex < 0
-        ? originals.map((_, index) => index)
-        : correspondingOriginalIndexes(passage, selection.lineIndex);
-      paired = indexes.map((index) => originals[index]).filter(Boolean).join(' ');
-      pairedLabel = selection.lineIndex < 0 ? 'Original passage' : 'Corresponding Shakespearean line';
-    }
-    if (paired) {
-      const correspondence = make('section', 'correspondence-box');
-      correspondence.appendChild(make('p', 'correspondence-label', pairedLabel));
-      correspondence.appendChild(make('p', 'selected-modern', paired));
-      inspectorContent.appendChild(correspondence);
-    }
+    const paired = selection.version === 'modern'
+      ? (passage.original || []).join(' ')
+      : passage.modern;
+    if (paired) inspectorContent.appendChild(make('p', 'selected-modern', paired));
 
     if (state.selectedWord) {
       const clean = norm(state.selectedWord).replace(/ /g, '');
@@ -538,10 +452,13 @@
   }
 
   function updateTabs() {
+    const overviewActive = state.activeTab === 'overview';
     const glossaryActive = state.activeTab === 'glossary';
-    notesTab.classList.toggle('is-active', !glossaryActive);
+    overviewTab.classList.toggle('is-active', overviewActive);
+    notesTab.classList.toggle('is-active', !overviewActive && !glossaryActive);
     glossaryTab.classList.toggle('is-active', glossaryActive);
-    notesTab.setAttribute('aria-selected', String(!glossaryActive));
+    overviewTab.setAttribute('aria-selected', String(overviewActive));
+    notesTab.setAttribute('aria-selected', String(!overviewActive && !glossaryActive));
     glossaryTab.setAttribute('aria-selected', String(glossaryActive));
   }
 
@@ -549,7 +466,19 @@
     state.activeTab = 'glossary';
     updateTabs();
     renderGlossary();
+    mobileNotesButton.childNodes[0].textContent = 'Open device guide ';
     if (window.matchMedia('(max-width: 820px)').matches) inspector.classList.add('is-open');
+  }
+
+  function changeScene(scene) {
+    state.scene = scene;
+    sceneSelect.value = scene;
+    state.search = '';
+    searchInput.value = '';
+    state.selected = null;
+    state.selectedWord = null;
+    renderReader();
+    showSceneOverview(true);
   }
 
   function selectPassage(passage, version = 'original') {
@@ -558,14 +487,6 @@
     state.selectedWord = null;
     renderReader();
     renderSelection(state.selected);
-  }
-
-  function focusCorrespondingLine(passageId, version) {
-    const card = passageRoot.querySelector(`[data-id="${passageId}"]`);
-    if (!card || state.mode !== 'compare') return;
-    const selector = version === 'original' ? '.modern-text.is-corresponding' : '.verse-line.is-corresponding';
-    const counterpart = card.querySelector(selector);
-    if (counterpart) counterpart.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
   }
 
   function handleTextClick(event) {
@@ -577,13 +498,12 @@
     const version = button.dataset.version || 'original';
     const lineIndex = Number(button.dataset.line);
     const text = version === 'modern'
-      ? (lineIndex < 0 ? passage.modern : modernLines(passage)[lineIndex])
+      ? passage.modern
       : (lineIndex < 0 ? (passage.original || []).join(' ') : passage.original[lineIndex]);
     state.selected = { passageId: passage.id, lineIndex, version, text };
     state.selectedWord = word ? word.dataset.word : null;
     renderReader();
     renderSelection(state.selected);
-    focusCorrespondingLine(passage.id, version);
     if (word) showWordMeaning(word.dataset.word, state.selected);
   }
 
@@ -601,15 +521,11 @@
 
   setupScenes();
   renderReader();
+  showSceneOverview();
 
   passageRoot.addEventListener('click', handleTextClick);
   sceneSelect.addEventListener('change', () => {
-    state.scene = sceneSelect.value;
-    state.search = '';
-    searchInput.value = '';
-    state.selected = null;
-    state.selectedWord = null;
-    renderReader();
+    changeScene(sceneSelect.value);
   });
   searchInput.addEventListener('input', () => {
     state.search = searchInput.value;
@@ -634,11 +550,11 @@
   });
   document.getElementById('prevScene').addEventListener('click', () => {
     const index = data.scenes.indexOf(state.scene);
-    if (index > 0) { state.scene = data.scenes[index - 1]; sceneSelect.value = state.scene; renderReader(); }
+    if (index > 0) changeScene(data.scenes[index - 1]);
   });
   document.getElementById('nextScene').addEventListener('click', () => {
     const index = data.scenes.indexOf(state.scene);
-    if (index >= 0 && index < data.scenes.length - 1) { state.scene = data.scenes[index + 1]; sceneSelect.value = state.scene; renderReader(); }
+    if (index >= 0 && index < data.scenes.length - 1) changeScene(data.scenes[index + 1]);
   });
   document.getElementById('smallerText').addEventListener('click', () => {
     state.fontScale = Math.max(.86, +(state.fontScale - .08).toFixed(2));
@@ -657,6 +573,7 @@
       document.getElementById('browseDevices').addEventListener('click', showGlossary);
     }
   });
+  overviewTab.addEventListener('click', () => showSceneOverview());
   glossaryTab.addEventListener('click', showGlossary);
   document.getElementById('browseDevices').addEventListener('click', showGlossary);
   document.getElementById('openGlossaryTop').addEventListener('click', () => {
