@@ -254,3 +254,33 @@ h1, h2, h3, p { margin-top: 0; }
 .reader-instruction { margin: 0 0 7px; padding: 0 13px; color: #9a9297; font-size: .67rem; line-height: 1.45; }
 .reader-instruction b { color: #786c70; font-weight: 750; }
 @media (max-width: 600px) { .reader-instruction { padding: 0 9px; font-size: .62rem; } }
+
+.word-token { border-radius: 3px; cursor: help; transition: color .15s ease, background .15s ease; }
+.word-token:hover, .word-token:focus-visible { color: var(--wine); background: #f4e2e5; outline: 2px solid transparent; }
+.teacher-highlight { border-radius: 5px; padding-left: 4px; padding-right: 4px; }
+.highlight-yellow { background: linear-gradient(transparent 12%, #fff0a8 12%, #fff0a8 90%, transparent 90%) !important; }
+.highlight-rose { background: linear-gradient(transparent 12%, #f7ccd4 12%, #f7ccd4 90%, transparent 90%) !important; }
+.highlight-blue { background: linear-gradient(transparent 12%, #cfe8f4 12%, #cfe8f4 90%, transparent 90%) !important; }
+.highlight-green { background: linear-gradient(transparent 12%, #d6eccf 12%, #d6eccf 90%, transparent 90%) !important; }
+.has-teacher-note::after { content: "✎"; display: inline-block; margin-left: 7px; color: var(--wine); font: 700 .72rem/1 sans-serif; }
+
+.teacher-tools { margin: 15px 0; padding: 15px; border: 1px solid #e4d7d7; border-radius: 12px; background: #fffdfb; }
+.teacher-tools h3 { margin: 2px 0 10px; font: 700 1rem/1.25 Georgia, serif; color: #392e32; }
+.highlight-options { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
+.highlight-chip { width: 27px; height: 27px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px #cfc2c3; cursor: pointer; }
+.highlight-chip.is-selected { box-shadow: 0 0 0 2px var(--wine); }
+.clear-chip { width: auto; padding: 0 8px; border-radius: 14px; background: #f4efec; color: #6f6367; font-size: .67rem; font-weight: 700; }
+.chip-yellow { background: #ffe98c; } .chip-rose { background: #f5bdc8; }
+.chip-blue { background: #bcdff0; } .chip-green { background: #c8e5bf; }
+.teacher-note-input { box-sizing: border-box; width: 100%; resize: vertical; border: 1px solid #d8ccca; border-radius: 8px; padding: 9px 10px; background: white; color: #3d3437; font: .82rem/1.45 inherit; }
+.teacher-note-input:focus { outline: 2px solid #b77a86; outline-offset: 1px; }
+.teacher-note-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; }
+.save-status { color: #807578; font-size: .63rem; }
+.save-note-button { border: 0; border-radius: 7px; padding: 7px 11px; background: var(--wine); color: white; font-size: .69rem; font-weight: 750; cursor: pointer; }
+
+.word-definition { margin: 13px 0; padding: 14px; border-left: 4px solid #b88a55; border-radius: 4px 10px 10px 4px; background: #fff8e9; }
+.word-definition-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; }
+.word-label { color: #492d34; font: italic 700 1.3rem/1.2 Georgia, serif; }
+.word-part { color: #927a63; font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.definition-copy { margin: 7px 0 4px; color: #41383a; font-size: .82rem; line-height: 1.5; }
+.definition-context { margin: 0; color: #8a7971; font-size: .66rem; line-height: 1.4; }
