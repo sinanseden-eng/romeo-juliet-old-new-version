@@ -113,14 +113,15 @@
             <button type="button" class="mobile-close" id="closeInspector" aria-label="Close device notes">×</button>
           </div>
           <div class="inspector-tabs" role="tablist" aria-label="Reading companion views">
-            <button type="button" class="inspector-tab is-active" id="notesTab" role="tab" aria-selected="true">Line notes</button>
+            <button type="button" class="inspector-tab is-active" id="overviewTab" role="tab" aria-selected="true">Overview</button>
+            <button type="button" class="inspector-tab" id="notesTab" role="tab" aria-selected="false">Line notes</button>
             <button type="button" class="inspector-tab" id="glossaryTab" role="tab" aria-selected="false">Device guide</button>
           </div>
           <div class="inspector-content" id="inspectorContent" role="tabpanel" aria-live="polite">
             <div class="welcome-note">
               <div class="note-symbol" aria-hidden="true">✦</div>
-              <h3>Pick a line to begin</h3>
-              <p>Select a line to add your own highlight or note. Select a word in the original text for its meaning.</p>
+              <h3>Scene overview</h3>
+              <p>Choose a scene to see its summary here. Select a line to add a highlight or note, or select an original word for its meaning.</p>
               <button type="button" class="text-link" id="browseDevices">Browse the device guide <span>→</span></button>
             </div>
             <div class="quick-tip">
@@ -131,7 +132,7 @@
           <div class="inspector-foot"><span class="foot-mark">R&J</span><span>Read closely. The details are where the drama hides.</span></div>
         </aside>
       </div>
-      <button type="button" id="mobileNotesButton" class="mobile-notes-button">Open line notes <span>↗</span></button>
+      <button type="button" id="mobileNotesButton" class="mobile-notes-button">Open scene overview <span>↗</span></button>
     </section>
 
     <section class="about-strip" aria-label="About this reader">
@@ -147,6 +148,7 @@
   </footer>
   <script src="play-data.js"></script>
   <script src="devices.js"></script>
+  <script src="scene-summaries.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
