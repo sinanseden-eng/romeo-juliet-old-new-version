@@ -146,6 +146,17 @@
     return scene === 'Prologue' ? 'Prologue' : scene.replace(', ', ' · ');
   }
 
+  function updateLitChartsLink() {
+    const selectedPassage = state.selected
+      ? data.passages.find((passage) => passage.id === state.selected.passageId)
+      : null;
+    const scene = selectedPassage?.scene || state.scene;
+    const slug = scene.toLowerCase().replace(/[,\s]+/g, '-');
+    litChartsButton.href = 'https://www.litcharts.com/shakescleare/shakespeare-translations/romeo-and-juliet/' + slug;
+    litChartsButton.setAttribute('aria-label', 'Open the ' + scene + ' LitCharts translation in a new tab');
+    litChartsButton.title = 'Open ' + scene + ' on LitCharts';
+  }
+
   function setupScenes() {
     sceneSelect.textContent = '';
     const prologue = document.createElement('option');
