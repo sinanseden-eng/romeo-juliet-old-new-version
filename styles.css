@@ -308,3 +308,48 @@ h1, h2, h3, p { margin-top: 0; }
 .scene-question-card h3 { margin: 0 0 13px; color: #3e3333; font: 600 1rem/1.5 Georgia, serif; }
 .possible-answer-label { margin: 0 0 5px; color: #69796c; font-size: .76rem; font-weight: 800; }
 .possible-answer-copy { margin: 0; color: #51474a; font-size: .88rem; line-height: 1.65; }
+
+
+/* Contextual annotations and guided discussion: Act 1, Scene 4 only. */
+.scene-theme-guide { margin: 4px 0 22px; padding: 16px; border: 1px solid #dfd6ce; border-radius: 12px; background: #faf7f1; }
+.scene-theme-guide[hidden], .theme-legend[hidden], .theme-guide-context[hidden] { display: none; }
+.theme-guide-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.theme-guide-heading h3 { margin: 0; color: #4d3a44; font-size: .94rem; line-height: 1.45; }
+.theme-notes-toggle { flex: 0 0 auto; padding: 7px 10px; border: 1px solid #d5b7bf; border-radius: 8px; background: white; color: var(--wine-dark); font-size: .7rem; font-weight: 750; cursor: pointer; }
+.theme-notes-toggle:hover { background: var(--rose-pale); }
+.theme-guide-help, .theme-guide-context { margin: 10px 0 0; color: #6d6269; font-size: .76rem; line-height: 1.6; }
+.theme-guide-context { padding: 10px; border-radius: 7px; background: #fffdf9; }
+.theme-legend { display: flex; flex-wrap: wrap; gap: 7px 13px; margin: 12px 0 0; font-size: .65rem; font-weight: 750; }
+.theme-legend span { padding-left: 8px; border-left: 3px solid; }
+.theme-legend-romeo { color: #91455f; }
+.theme-legend-mercutio { color: #456895; }
+.theme-legend-fate { color: #946314; }
+.theme-line--romeo, .theme-annotation--romeo { --theme-accent: #a15570; --theme-tint: #fcf1f5; }
+.theme-line--mercutio, .theme-annotation--mercutio { --theme-accent: #5276a5; --theme-tint: #f0f5fc; }
+.theme-line--fate, .theme-annotation--fate { --theme-accent: #ac7b2d; --theme-tint: #fff8e9; }
+.verse-line.theme-line { padding-left: 7px; margin-left: -9px; border-left: 2px solid var(--theme-accent); }
+.theme-keyword { text-decoration-line: underline; text-decoration-color: var(--theme-accent); text-decoration-thickness: 2px; text-underline-offset: .2em; }
+.theme-annotation { margin: 7px 0 17px; padding: 12px; border: 1px solid #e6ddd5; border-left: 3px solid var(--theme-accent); border-radius: 4px 9px 9px 4px; background: var(--theme-tint); font-family: ui-sans-serif, system-ui, sans-serif; }
+.theme-note-label { margin: 0 0 5px; color: var(--theme-accent); font-size: .62rem; font-weight: 850; line-height: 1.4; letter-spacing: .035em; }
+.theme-annotation h4 { margin: 0 0 7px; color: #413640; font-size: .82rem; line-height: 1.45; }
+.theme-note-copy { margin: 0; color: #5a5057; font-size: .77rem; line-height: 1.62; }
+.theme-note-device { margin: 9px 0 0; color: #7d6f78; font-size: .64rem; line-height: 1.5; }
+.scene-discussion { margin-top: 13px; border-top: 1px solid #e5dbd2; padding-top: 11px; }
+.scene-discussion > summary { color: var(--wine-dark); font-size: .8rem; font-weight: 800; cursor: pointer; }
+.scene-discussion-list { margin: 13px 0 0; padding-left: 23px; }
+.scene-discussion-point { padding: 0 0 16px 3px; margin: 0 0 16px; border-bottom: 1px solid #e8ded5; }
+.scene-discussion-point:last-child { border: 0; margin-bottom: 0; padding-bottom: 0; }
+.scene-discussion-point::marker { color: var(--wine); font-size: .83rem; font-weight: 800; }
+.scene-discussion-point h4 { margin: 0 0 6px; color: #4a3b44; font-size: .8rem; }
+.discussion-question { margin: 0 0 8px; color: #584e55; font-size: .8rem; line-height: 1.65; }
+.discussion-evidence { padding: 5px 8px; border: 1px solid #dfd4c8; border-radius: 6px; background: #fffdf9; color: #81513e; font-size: .68rem; line-height: 1.5; text-align: left; cursor: pointer; }
+.discussion-evidence:hover { background: #f5eadf; }
+.discussion-direction { margin-top: 10px; }
+.discussion-direction summary { color: #716477; font-size: .72rem; font-weight: 750; cursor: pointer; }
+.discussion-direction p { margin: 8px 0 0; padding: 10px; border-radius: 6px; background: white; color: #675c64; font-size: .75rem; line-height: 1.65; }
+.verse-line:focus-visible { outline: 2px solid var(--wine); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .scene-theme-guide { padding: 13px 11px; }
+  .theme-guide-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .theme-annotation { padding: 11px; }
+}

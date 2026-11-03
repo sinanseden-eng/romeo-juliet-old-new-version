@@ -6,6 +6,8 @@
   const glossary = window.DEVICE_GLOSSARY || [];
   const sceneSummaries = window.SCENE_SUMMARIES || {};
   const lineQuestions = window.LINE_QUESTIONS || [];
+  const sceneThemeData = window.SCENE_THEMES || {};
+  const sceneThemeNotes = sceneThemeData.annotations || [];
   const passageRoot = document.getElementById('passages');
   const sceneSelect = document.getElementById('sceneSelect');
   const litChartsButton = document.getElementById('litChartsButton');
@@ -23,6 +25,8 @@
   const notesTab = document.getElementById('notesTab');
   const glossaryTab = document.getElementById('glossaryTab');
   const mobileNotesButton = document.getElementById('mobileNotesButton');
+  const sceneThemeGuide = document.getElementById('sceneThemeGuide');
+  const toggleThemeAnnotations = document.getElementById('toggleThemeAnnotations');
 
   const state = {
     scene: 'Prologue',
@@ -32,7 +36,8 @@
     selected: null,
     fontScale: 1,
     selectedWord: null,
-    selectedQuestion: null
+    selectedQuestion: null,
+    showThemeAnnotations: true
   };
 
   const ANNOTATION_KEY = 'romeo-juliet-teacher-annotations-v1';
@@ -190,7 +195,100 @@
     return [...(passage.original || []), passage.modern || ''].join(' ');
   }
 
+  function themeNotesFor(passage) {
+    if (!state.showThemeAnnotations || passage.scene !== sceneThemeData.scene) return [];
+    return sceneThemeNotes.filter((note) =>
+      note.passageId === passage.id &&
+      note.expected.every((line, index) => passage.original[note.from + index] === line)
+    );
+  }
+
+  function applyThemeEmphasis(button, line, lineIndex, attachedNotes) {
+    const wordSpans = [...button.querySelectorAll('.word-token')];
+    const words = [...line.matchAll(/[A-Za-z]+(?:['’][A-Za-z]+)?/g)];
+    attachedNotes.forEach((note) => {
+      (note.keywords || []).filter((key) => key.line === lineIndex).forEach((key) => {
+        const start = line.indexOf(key.text);
+        if (start < 0) return;
+        const end = start + key.text.length;
+        words.forEach((word, index) => {
+          if (word.index < end && word.index + word[0].length > start) {
+            wordSpans[index]?.classList.add('theme-keyword');
+          }
+        });
+      });
+    });
+  }
+
+  function renderThemeAnnotation(note) {
+    const card = make('aside', 'theme-annotation theme-annotation--' + note.tone);
+    card.id = 'theme-note-' + note.id;
+    card.dataset.themeNote = note.id;
+    card.setAttribute('aria-label', 'Theme annotation: ' + note.theme);
+    card.appendChild(make('p', 'theme-note-label', note.theme));
+    card.appendChild(make('h4', '', note.title));
+    card.appendChild(make('p', 'theme-note-copy', note.text));
+    card.appendChild(make('p', 'theme-note-device', note.device));
+    return card;
+  }
+
+  function updateSceneThemeGuide(visiblePassages) {
+    if (!sceneThemeGuide) return;
+    sceneThemeGuide.hidden = !visiblePassages.some((passage) => passage.scene === sceneThemeData.scene);
+    const notesVisible = state.showThemeAnnotations && state.mode !== 'modern';
+    toggleThemeAnnotations.textContent = state.mode === 'modern'
+      ? 'Show annotated original'
+      : (notesVisible ? 'Hide theme notes' : 'Show theme notes');
+    toggleThemeAnnotations.setAttribute('aria-pressed', String(notesVisible));
+    document.getElementById('sceneThemeLegend').hidden = !notesVisible;
+    document.getElementById('sceneThemeContext').hidden = !notesVisible;
+  }
+
+  function setupSceneThemeGuide() {
+    if (!sceneThemeGuide || !sceneThemeData.discussion) return;
+    const root = document.getElementById('sceneDiscussionPoints');
+    const path = make('details', 'scene-discussion');
+    path.appendChild(make('summary', '', 'Discussion path · ' + sceneThemeData.discussion.length + ' prompts'));
+    const list = make('ol', 'scene-discussion-list');
+    sceneThemeData.discussion.forEach((point) => {
+      const item = make('li', 'scene-discussion-point');
+      item.appendChild(make('h4', '', point.title));
+      item.appendChild(make('p', 'discussion-question', point.question));
+      const find = make('button', 'discussion-evidence', 'Find lines: ' + point.evidence);
+      find.type = 'button';
+      find.addEventListener('click', () => {
+        if (state.search || state.scene !== sceneThemeData.scene) changeScene(sceneThemeData.scene);
+        if (state.mode === 'modern') document.querySelector('.mode-button[data-mode="compare"]').click();
+        const selector = '[data-passage="' + point.passageId + '"][data-line="' + point.line + '"][data-version="original"]';
+        const line = passageRoot.querySelector(selector);
+        if (line) {
+          const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          line.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+          line.focus({ preventScroll: true });
+        }
+      });
+      item.appendChild(find);
+      const direction = make('details', 'discussion-direction');
+      direction.appendChild(make('summary', '', 'Possible direction'));
+      direction.appendChild(make('p', '', point.direction));
+      item.appendChild(direction);
+      list.appendChild(item);
+    });
+    path.appendChild(list);
+    root.appendChild(path);
+    toggleThemeAnnotations.addEventListener('click', () => {
+      if (state.mode === 'modern') {
+        state.showThemeAnnotations = true;
+        document.querySelector('.mode-button[data-mode="compare"]').click();
+      } else {
+        state.showThemeAnnotations = !state.showThemeAnnotations;
+        renderReader();
+      }
+    });
+  }
+
   function renderOriginalCell(passage) {
+    const attachedThemeNotes = themeNotesFor(passage);
     const cell = make('div', 'passage-cell original-cell');
     const header = make('div', 'passage-label-row');
     const label = make('div', 'speaker-label', passage.kind === 'stage' ? 'Stage direction' : (passage.speaker || 'Speech'));
@@ -216,8 +314,17 @@
       button.dataset.line = String(index);
       button.dataset.version = 'original';
       appendLineText(button, passage, line, index);
+      const lineThemeNotes = attachedThemeNotes.filter((note) => index >= note.from && index <= note.to);
+      if (lineThemeNotes.length) {
+        button.classList.add('theme-line', 'theme-line--' + lineThemeNotes[0].tone);
+        button.setAttribute('aria-describedby', lineThemeNotes.map((note) => 'theme-note-' + note.id).join(' '));
+        applyThemeEmphasis(button, line, index, lineThemeNotes);
+      }
       button.setAttribute('aria-label', `Select original text: ${line}`);
       lines.appendChild(button);
+      attachedThemeNotes.filter((note) => note.to === index).forEach((note) => {
+        lines.appendChild(renderThemeAnnotation(note));
+      });
     });
     cell.appendChild(lines);
     return cell;
@@ -278,6 +385,7 @@
   function renderReader() {
     updateLitChartsLink();
     const visible = getVisiblePassages();
+    updateSceneThemeGuide(visible);
     const query = state.search.trim();
     const limited = query ? visible.slice(0, 90) : visible;
     passageRoot.textContent = '';
@@ -587,6 +695,7 @@
   });
 
   setupScenes();
+  setupSceneThemeGuide();
   renderReader();
   showSceneOverview();
 
@@ -642,7 +751,7 @@
   });
   overviewTab.addEventListener('click', () => showSceneOverview());
   glossaryTab.addEventListener('click', showGlossary);
-  document.getElementById('browseDevices').addEventListener('click', showGlossary);
+  document.getElementById('browseDevices')?.addEventListener('click', showGlossary);
   document.getElementById('openGlossaryTop').addEventListener('click', () => {
     showGlossary();
     document.getElementById('reader').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -653,3 +762,4 @@
     inspector.scrollTop = 0;
   });
 })();
+

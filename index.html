@@ -96,6 +96,20 @@
             <span class="modern-label"><i></i> Modern English</span>
           </div>
           <p class="reader-instruction">Click an underlined <b>?</b> marker for a scene question and possible answer. Select a line to add a note, or click any other <b>word in the original</b> for its meaning.</p>
+          <section id="sceneThemeGuide" class="scene-theme-guide" aria-labelledby="sceneThemeTitle" hidden>
+            <div class="theme-guide-heading">
+              <h3 id="sceneThemeTitle">Discuss &amp; annotate · Act 1, Scene 4</h3>
+              <button type="button" id="toggleThemeAnnotations" class="theme-notes-toggle" aria-pressed="true">Hide theme notes</button>
+            </div>
+            <p class="theme-guide-help">Use the discussion path to build an interpretation from the words. Hide the theme notes while students explore; open “Possible direction” after they have offered evidence.</p>
+            <p id="sceneThemeContext" class="theme-guide-context"><strong>Context:</strong> Romeo is still lovesick over Rosaline; he has not met Juliet. His closing warning anticipates what will follow at the Capulet feast.</p>
+            <div id="sceneThemeLegend" class="theme-legend" aria-label="Annotation key">
+              <span class="theme-legend-romeo">Romeo · vulnerability</span>
+              <span class="theme-legend-mercutio">Dreams · scepticism</span>
+              <span class="theme-legend-fate">Fate · foreshadowing</span>
+            </div>
+            <div id="sceneDiscussionPoints"></div>
+          </section>
           <div id="passages" class="passages" aria-live="polite"></div>
           <div id="emptyState" class="empty-state" hidden>
             <span class="empty-icon">⌕</span>
@@ -151,6 +165,7 @@
   <script src="devices.js"></script>
   <script src="scene-summaries.js"></script>
   <script src="line-questions.js"></script>
+  <script src="scene-themes.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
