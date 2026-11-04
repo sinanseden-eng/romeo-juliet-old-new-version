@@ -353,3 +353,15 @@ h1, h2, h3, p { margin-top: 0; }
   .theme-guide-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
   .theme-annotation { padding: 11px; }
 }
+
+/* Meanings and questions stay visible; thematic analysis opens on request. */
+.theme-note-step { margin: 0 0 5px; color: #6b5a65; font-size: .61rem; line-height: 1.4; font-weight: 850; letter-spacing: .045em; text-transform: uppercase; }
+.theme-note-meaning { margin: 0; color: #51434d; font-size: .79rem; line-height: 1.65; }
+.theme-line-discussion { margin-top: 12px; padding-top: 11px; border-top: 1px solid #dfd5d7; }
+.theme-line-discussion h4 { margin-bottom: 5px; }
+.theme-note-question { margin: 0; color: #4d424c; font-size: .8rem; line-height: 1.7; }
+.theme-interpretation { margin-top: 12px; padding-top: 10px; border-top: 1px solid #dfd5d7; }
+.theme-interpretation > summary, .theme-key-details > summary { color: #76566d; font-size: .7rem; line-height: 1.5; font-weight: 750; cursor: pointer; }
+.theme-interpretation-content { padding-top: 12px; }
+.theme-key-details { margin-top: 12px; }
+.theme-key-details[hidden] { display: none; }

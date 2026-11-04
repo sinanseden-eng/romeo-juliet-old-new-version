@@ -8,6 +8,7 @@
   const lineQuestions = window.LINE_QUESTIONS || [];
   const sceneThemeData = window.SCENE_THEMES || {};
   const sceneThemeNotes = sceneThemeData.annotations || [];
+  const openThemeInterpretations = new Set();
   const passageRoot = document.getElementById('passages');
   const sceneSelect = document.getElementById('sceneSelect');
   const litChartsButton = document.getElementById('litChartsButton');
@@ -224,11 +225,38 @@
     const card = make('aside', 'theme-annotation theme-annotation--' + note.tone);
     card.id = 'theme-note-' + note.id;
     card.dataset.themeNote = note.id;
-    card.setAttribute('aria-label', 'Theme annotation: ' + note.theme);
-    card.appendChild(make('p', 'theme-note-label', note.theme));
-    card.appendChild(make('h4', '', note.title));
-    card.appendChild(make('p', 'theme-note-copy', note.text));
-    card.appendChild(make('p', 'theme-note-device', note.device));
+    card.setAttribute('aria-label', 'Line meaning and discussion');
+
+    const meaning = make('div', 'theme-line-meaning');
+    meaning.appendChild(make('p', 'theme-note-step', 'In plain English'));
+    const meaningCopy = make('p', 'theme-note-meaning', note.meaning);
+    meaningCopy.id = 'theme-meaning-' + note.id;
+    meaning.appendChild(meaningCopy);
+    card.appendChild(meaning);
+
+    const discussion = make('div', 'theme-line-discussion');
+    discussion.appendChild(make('p', 'theme-note-step', 'Think it through'));
+    discussion.appendChild(make('h4', '', note.promptTitle));
+    const prompt = make('p', 'theme-note-question', note.prompt);
+    prompt.id = 'theme-prompt-' + note.id;
+    discussion.appendChild(prompt);
+    card.appendChild(discussion);
+
+    const interpretation = make('details', 'theme-interpretation');
+    interpretation.open = openThemeInterpretations.has(note.id);
+    interpretation.appendChild(make('summary', '', 'Explore an interpretation'));
+    const analysis = make('div', 'theme-interpretation-content');
+    analysis.appendChild(make('p', 'theme-note-label', note.theme));
+    analysis.appendChild(make('h4', '', note.title));
+    analysis.appendChild(make('p', 'theme-note-copy', note.text));
+    analysis.appendChild(make('p', 'theme-note-device', note.device));
+    interpretation.appendChild(analysis);
+    interpretation.addEventListener('toggle', () => {
+      if (!interpretation.isConnected) return;
+      if (interpretation.open) openThemeInterpretations.add(note.id);
+      else openThemeInterpretations.delete(note.id);
+    });
+    card.appendChild(interpretation);
     return card;
   }
 
@@ -238,7 +266,7 @@
     const notesVisible = state.showThemeAnnotations && state.mode !== 'modern';
     toggleThemeAnnotations.textContent = state.mode === 'modern'
       ? 'Show annotated original'
-      : (notesVisible ? 'Hide theme notes' : 'Show theme notes');
+      : (notesVisible ? 'Hide discussion boxes' : 'Show discussion boxes');
     toggleThemeAnnotations.setAttribute('aria-pressed', String(notesVisible));
     document.getElementById('sceneThemeLegend').hidden = !notesVisible;
     document.getElementById('sceneThemeContext').hidden = !notesVisible;
@@ -317,7 +345,7 @@
       const lineThemeNotes = attachedThemeNotes.filter((note) => index >= note.from && index <= note.to);
       if (lineThemeNotes.length) {
         button.classList.add('theme-line', 'theme-line--' + lineThemeNotes[0].tone);
-        button.setAttribute('aria-describedby', lineThemeNotes.map((note) => 'theme-note-' + note.id).join(' '));
+        button.setAttribute('aria-describedby', lineThemeNotes.flatMap((note) => ['theme-meaning-' + note.id, 'theme-prompt-' + note.id]).join(' '));
         applyThemeEmphasis(button, line, index, lineThemeNotes);
       }
       button.setAttribute('aria-label', `Select original text: ${line}`);

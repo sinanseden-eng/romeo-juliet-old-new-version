@@ -30,7 +30,10 @@ window.SCENE_THEMES = {
       "expected": [
         "Give me a torch. I am not for this ambling.",
         "Being but heavy, I will bear the light."
-      ]
+      ],
+      "promptTitle": "Light and heavy",
+      "meaning": "Romeo asks to carry a torch instead of dancing. He says that, although he feels heavy-hearted, he can carry the light.",
+      "prompt": "Why might Shakespeare put “heavy” and “light” in the same line? What difference does Romeo draw between carrying light and feeling light-hearted?"
     },
     {
       "id": "soul-of-lead",
@@ -56,7 +59,10 @@ window.SCENE_THEMES = {
         "Not I, believe me. You have dancing shoes",
         "With nimble soles. I have a soul of lead",
         "So stakes me to the ground I cannot move."
-      ]
+      ],
+      "promptTitle": "Soles and soul",
+      "meaning": "Romeo says his friends have light shoes for dancing, but his own soul feels like lead and keeps him fixed to the ground.",
+      "prompt": "Why compare a soul to lead rather than simply say that Romeo is sad? What does “cannot move” suggest about how much control he feels he has?"
     },
     {
       "id": "cupids-wings",
@@ -81,7 +87,10 @@ window.SCENE_THEMES = {
       "expected": [
         "You are a lover. Borrow Cupid’s wings",
         "And soar with them above a common bound."
-      ]
+      ],
+      "promptTitle": "Try another image",
+      "meaning": "Mercutio tells Romeo to borrow the wings of Cupid, the god of love, and jump higher than an ordinary person could.",
+      "prompt": "How would Cupid’s wings change the image of Romeo’s “soul of lead”? Is Mercutio sympathising, challenging him, or doing both? Which words support your view?"
     },
     {
       "id": "wounded-by-love",
@@ -112,7 +121,10 @@ window.SCENE_THEMES = {
         "To soar with his light feathers, and so bound,",
         "I cannot bound a pitch above dull woe.",
         "Under love’s heavy burden do I sink."
-      ]
+      ],
+      "promptTitle": "Follow the movement",
+      "meaning": "Romeo says Cupid’s arrow has hurt him too much to fly. He feels tied down by sadness and says that he sinks beneath love’s weight.",
+      "prompt": "Trace the movement from the arrow to being “bound” and sinking. Who or what acts on whom? What pattern do you notice in the role Romeo gives himself?"
     },
     {
       "id": "tender-thing",
@@ -137,7 +149,10 @@ window.SCENE_THEMES = {
       "expected": [
         "And to sink in it, should you burthen love—",
         "Too great oppression for a tender thing."
-      ]
+      ],
+      "promptTitle": "Who carries the burden?",
+      "meaning": "Mercutio turns Romeo’s image around: if Romeo sinks into love, Romeo will weigh love down, and love is too delicate to carry him.",
+      "prompt": "Does Mercutio’s reply comfort Romeo, mock him, or do both? How does reversing the image of who carries the weight affect the serious tone?"
     },
     {
       "id": "thorn-of-love",
@@ -162,7 +177,10 @@ window.SCENE_THEMES = {
       "expected": [
         "Is love a tender thing? It is too rough,",
         "Too rude, too boisterous, and it pricks like thorn."
-      ]
+      ],
+      "promptTitle": "Question the description",
+      "meaning": "Romeo asks whether love is really gentle. He describes it as rough, wild and painful, like a thorn that pricks him.",
+      "prompt": "Why does Romeo question the word “tender”? What qualities does the thorn comparison give to love, and how might that view affect his response to it?"
     },
     {
       "id": "fight-back",
@@ -187,7 +205,10 @@ window.SCENE_THEMES = {
       "expected": [
         "If love be rough with you, be rough with love.",
         "Prick love for pricking, and you beat love down.—"
-      ]
+      ],
+      "promptTitle": "Listen to the commands",
+      "meaning": "Mercutio tells Romeo that if love hurts him, he should hurt it back and overpower it.",
+      "prompt": "Which command verbs stand out? What response to being hurt do they encourage, and how does this differ from the response Romeo has described?"
     },
     {
       "id": "candle-holder",
@@ -219,7 +240,10 @@ window.SCENE_THEMES = {
         "For I am proverbed with a grandsire phrase,",
         "I’ll be a candle holder, and look on.",
         "The game was ne'er so fair, and I am done."
-      ]
+      ],
+      "promptTitle": "Inside or outside the action?",
+      "meaning": "Romeo says the carefree people can dance while he holds a torch and watches. Even if the entertainment looks inviting, he says he is finished with the game.",
+      "prompt": "What is striking about “I am done” before the evening has properly begun? What might choosing to watch rather than join in suggest about Romeo’s relation to the others?"
     },
     {
       "id": "love-as-mud",
@@ -245,7 +269,10 @@ window.SCENE_THEMES = {
         "If thou art dun, we’ll draw thee from the mire,",
         "Or—save your reverence—love, wherein thou stick’st",
         "Up to the ears. Come, we burn daylight, ho!"
-      ]
+      ],
+      "promptTitle": "Picture the situation",
+      "meaning": "Mercutio says the friends will pull Romeo free as if he were stuck in mud. He then calls that mud love and urges Romeo to get moving.",
+      "prompt": "Does being pulled from the mud make Romeo’s situation seem permanent or changeable? Which part of the image leads you there, and how does that compare with Romeo’s own descriptions?"
     },
     {
       "id": "bad-idea",
@@ -270,7 +297,10 @@ window.SCENE_THEMES = {
       "expected": [
         "And we mean well in going to this mask,",
         "But ’tis no wit to go."
-      ]
+      ],
+      "promptTitle": "Good intentions—and a doubt",
+      "meaning": "Romeo says that they have good intentions in attending the masque, but he thinks it is not a wise idea to go.",
+      "prompt": "Why might Romeo call the plan unwise even though they “mean well”? What is still unexplained, and what questions does his hesitation create for the audience?"
     },
     {
       "id": "romeos-dream",
@@ -290,7 +320,10 @@ window.SCENE_THEMES = {
       ],
       "expected": [
         "I dreamt a dream tonight."
-      ]
+      ],
+      "promptTitle": "What counts as evidence?",
+      "meaning": "Romeo says he had a dream the previous night. Here, “tonight” means last night; he does not tell us exactly what he dreamed.",
+      "prompt": "What makes a dream relevant to Romeo’s decision about the party? What might the weight he gives it suggest about how he thinks the future can be known?"
     },
     {
       "id": "dreamers-lie",
@@ -310,7 +343,10 @@ window.SCENE_THEMES = {
       ],
       "expected": [
         "That dreamers often lie."
-      ]
+      ],
+      "promptTitle": "Hear the double meaning",
+      "meaning": "Mercutio says that people who dream often “lie”. The word can mean telling an untruth or lying down.",
+      "prompt": "Which meaning of “lie” seems to carry Mercutio’s main point? How does his joke challenge Romeo’s reason for hesitating?"
     },
     {
       "id": "dreams-true",
@@ -330,7 +366,10 @@ window.SCENE_THEMES = {
       ],
       "expected": [
         "In bed asleep while they do dream things true."
-      ]
+      ],
+      "promptTitle": "Follow Romeo’s reply",
+      "meaning": "Romeo replies that dreamers lie in bed while asleep, but the things they dream can still be true.",
+      "prompt": "What would Romeo have to believe about dreams for this reply to support his hesitation? How does that differ from Mercutio’s position?"
     },
     {
       "id": "queen-mab",
@@ -350,7 +389,10 @@ window.SCENE_THEMES = {
       ],
       "expected": [
         "Oh, then, I see Queen Mab hath been with you."
-      ]
+      ],
+      "promptTitle": "Why a fairy story?",
+      "meaning": "Mercutio jokes that Queen Mab, a fairy associated here with dreams, must have visited Romeo as he slept.",
+      "prompt": "Why might Mercutio introduce Queen Mab at this point? How does answering a serious concern with a fairy story change the tone of their disagreement?"
     },
     {
       "id": "dreams-and-desires",
@@ -388,7 +430,10 @@ window.SCENE_THEMES = {
         "O'er ladies' lips, who straight on kisses dream,",
         "Which oft the angry Mab with blisters plagues,",
         "Because their breaths with sweetmeats tainted are."
-      ]
+      ],
+      "promptTitle": "Find the pattern",
+      "meaning": "Mercutio describes lovers dreaming of love, courtiers of curtsies, lawyers of fees and ladies of kisses. He also imagines Mab blistering ladies’ lips when their breath is spoiled by sweets.",
+      "prompt": "What does each person dream about? How do those dreams relate to their waking interests, and what might the pattern suggest about where romantic dreams come from?"
     },
     {
       "id": "disturbing-fantasy",
@@ -422,7 +467,10 @@ window.SCENE_THEMES = {
         "Drums in his ear, at which he starts and wakes,",
         "And being thus frighted swears a prayer or two",
         "And sleeps again. This is that very Mab"
-      ]
+      ],
+      "promptTitle": "Notice the change in mood",
+      "meaning": "Mab makes a soldier dream of fighting, weapons and enormous drinks. Imagined drums frighten him awake; he says a prayer or two and goes back to sleep.",
+      "prompt": "How does the mood change from the lovers’ dreams to the soldier’s? What might these violent images make you question about calling Mercutio a straightforward “realist”?"
     },
     {
       "id": "talk-of-nothing",
@@ -447,7 +495,10 @@ window.SCENE_THEMES = {
       "expected": [
         "Peace, peace, Mercutio, peace!",
         "Thou talk’st of nothing."
-      ]
+      ],
+      "promptTitle": "Why does Romeo interrupt?",
+      "meaning": "Romeo tells Mercutio to stop speaking and says that his talk amounts to nothing.",
+      "prompt": "Why does Romeo call this “nothing” after treating his own dream as worth discussing? What distinction might he be making between their two uses of imagination?"
     },
     {
       "id": "idle-brain",
@@ -478,7 +529,10 @@ window.SCENE_THEMES = {
         "Which are the children of an idle brain,",
         "Begot of nothing but vain fantasy,",
         "Which is as thin of substance as the air"
-      ]
+      ],
+      "promptTitle": "Examine the family metaphor",
+      "meaning": "Mercutio says dreams are born from an idle brain and empty imagination. He describes them as having no more solid substance than air.",
+      "prompt": "If dreams are “children”, who or what are their parents? What effect do “nothing”, “vain” and the comparison with air have on the authority we give them?"
     },
     {
       "id": "inconstant-wind",
@@ -505,7 +559,10 @@ window.SCENE_THEMES = {
         "Even now the frozen bosom of the north,",
         "And, being angered, puffs away from thence,",
         "Turning his face to the dew-dropping south."
-      ]
+      ],
+      "promptTitle": "What sort of guide?",
+      "meaning": "Mercutio compares fantasy to a wind that first courts the cold north, then grows angry and turns south.",
+      "prompt": "Which qualities of the wind matter in this comparison? What sort of guide would it make dreams, and how does that view compare with Romeo’s?"
     },
     {
       "id": "late-or-early",
@@ -526,7 +583,10 @@ window.SCENE_THEMES = {
       "expected": [
         "This wind you talk of, blows us from ourselves.",
         "Supper is done, and we shall come too late."
-      ]
+      ],
+      "promptTitle": "Two ways of thinking about time",
+      "meaning": "Benvolio says the talk is blowing them off course. Supper is over, and he worries they will arrive too late.",
+      "prompt": "What different kinds of concern do “too late” and “too early” carry for Benvolio and Romeo? What change in scale or mood occurs between their lines?"
     },
     {
       "id": "hanging-in-stars",
@@ -555,7 +615,10 @@ window.SCENE_THEMES = {
       "expected": [
         "I fear too early, for my mind misgives",
         "Some consequence yet hanging in the stars"
-      ]
+      ],
+      "promptTitle": "Locate the source of the fear",
+      "meaning": "Romeo fears arriving too early. He has an uneasy feeling that the stars hold some consequence in store that has not yet happened.",
+      "prompt": "What do “my mind misgives” and “hanging in the stars” suggest about the source of Romeo’s fear? How much of the feared outcome seems to lie within his control?"
     },
     {
       "id": "revels-beginning",
@@ -584,7 +647,10 @@ window.SCENE_THEMES = {
       "expected": [
         "Shall bitterly begin his fearful date",
         "With this night’s revels, and expire the term"
-      ]
+      ],
+      "promptTitle": "Link the present to the future",
+      "meaning": "Romeo fears that the coming trouble will begin with tonight’s festivities and will bring the allotted span of his life to an end.",
+      "prompt": "Which words connect future trouble to tonight’s celebration? How could the contrast between revels and a fearful beginning affect the audience’s expectations of the party?"
     },
     {
       "id": "untimely-death",
@@ -613,7 +679,10 @@ window.SCENE_THEMES = {
       "expected": [
         "Of a despisèd life closed in my breast",
         "By some vile forfeit of untimely death."
-      ]
+      ],
+      "promptTitle": "Make the warning more precise",
+      "meaning": "Romeo fears that his unhappy life will be lost as a terrible penalty through death before its proper time.",
+      "prompt": "How has the vague “consequence” become more specific? What might “despisèd” reveal about Romeo’s present mood, and how might hearing the Prologue affect the audience’s response?"
     },
     {
       "id": "steerage-and-choice",
@@ -642,7 +711,10 @@ window.SCENE_THEMES = {
       "expected": [
         "But he that hath the steerage of my course,",
         "Direct my sail. On, lusty gentlemen."
-      ]
+      ],
+      "promptTitle": "Who directs the journey?",
+      "meaning": "Romeo asks whoever controls the direction of his life to guide him as someone would guide a ship. He then tells his companions to go on.",
+      "prompt": "In the sailing image, who seems to direct the journey? How does Romeo’s own word “On” complicate that picture? What larger question about directing your own life emerges here?"
     }
   ],
   "discussion": [
