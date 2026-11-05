@@ -9,6 +9,7 @@
   const sceneThemeData = window.SCENE_THEMES || {};
   const sceneThemeNotes = sceneThemeData.annotations || [];
   const openThemeInterpretations = new Set();
+  const originalLineNumbers = buildOriginalLineNumbers(data.passages);
   const passageRoot = document.getElementById('passages');
   const sceneSelect = document.getElementById('sceneSelect');
   const litChartsButton = document.getElementById('litChartsButton');
@@ -315,6 +316,24 @@
     });
   }
 
+  function buildOriginalLineNumbers(passages) {
+    const countsByScene = new Map();
+    const numbers = new Map();
+    // Standalone acting cues do not consume a speech-line number.
+    // Parenthetical spoken verse, such as the Prologue's Verona line, still counts.
+    const stageCueOnly = /^\s*[\[(](?:aside\b|music\b|gives\b|kisses\b)[^)\]]*[\])]\s*$/i;
+    passages.forEach((passage) => {
+      if (passage.kind !== 'speech') return;
+      (passage.original || []).forEach((line, index) => {
+        if (!line.trim() || stageCueOnly.test(line)) return;
+        const number = (countsByScene.get(passage.scene) || 0) + 1;
+        countsByScene.set(passage.scene, number);
+        numbers.set(passage.id + ':' + index, number);
+      });
+    });
+    return numbers;
+  }
+
   function renderOriginalCell(passage) {
     const attachedThemeNotes = themeNotesFor(passage);
     const cell = make('div', 'passage-cell original-cell');
@@ -330,6 +349,9 @@
     header.appendChild(selectWhole);
     cell.appendChild(header);
     const lines = make('div', 'speech-lines');
+    if ((passage.original || []).some((_, index) => originalLineNumbers.has(passage.id + ':' + index))) {
+      lines.classList.add('has-line-numbers');
+    }
     if (!(passage.original || []).length) {
       lines.appendChild(make('p', 'reflow-note', passage.kind === 'stage' ? 'This stage cue appears in the modern column of the supplied edition.' : 'The supplied original groups this speech with a nearby passage.'));
     }
@@ -341,6 +363,11 @@
       button.dataset.passage = passage.id;
       button.dataset.line = String(index);
       button.dataset.version = 'original';
+      const lineNumber = originalLineNumbers.get(passage.id + ':' + index);
+      if (lineNumber) {
+        button.dataset.readerLine = String(lineNumber);
+        button.title = 'Reader line ' + lineNumber + ' · ' + passage.scene;
+      }
       appendLineText(button, passage, line, index);
       const lineThemeNotes = attachedThemeNotes.filter((note) => index >= note.from && index <= note.to);
       if (lineThemeNotes.length) {
@@ -348,7 +375,9 @@
         button.setAttribute('aria-describedby', lineThemeNotes.flatMap((note) => ['theme-meaning-' + note.id, 'theme-prompt-' + note.id]).join(' '));
         applyThemeEmphasis(button, line, index, lineThemeNotes);
       }
-      button.setAttribute('aria-label', `Select original text: ${line}`);
+      button.setAttribute('aria-label', lineNumber
+        ? `Select original line ${lineNumber}: ${line}`
+        : `Select original text: ${line}`);
       lines.appendChild(button);
       attachedThemeNotes.filter((note) => note.to === index).forEach((note) => {
         lines.appendChild(renderThemeAnnotation(note));

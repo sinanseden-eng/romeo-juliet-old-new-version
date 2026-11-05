@@ -365,3 +365,32 @@ h1, h2, h3, p { margin-top: 0; }
 .theme-interpretation-content { padding-top: 12px; }
 .theme-key-details { margin-top: 12px; }
 .theme-key-details[hidden] { display: none; }
+
+/* Stable scene-based speech-line numbers, kept outside the selectable text. */
+.speech-lines.has-line-numbers { --original-line-gutter: calc(var(--reading-size) * 2.3); padding-left: var(--original-line-gutter); }
+.verse-line[data-reader-line] { position: relative; }
+.verse-line[data-reader-line]::before {
+  content: attr(data-reader-line);
+  position: absolute;
+  top: 1px;
+  left: calc(4px - var(--original-line-gutter));
+  width: calc(var(--original-line-gutter) - .65rem);
+  color: #82717a;
+  text-align: right;
+  white-space: nowrap;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .7em;
+  font-style: normal;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: calc(var(--reading-size) * 1.56);
+  user-select: none;
+  pointer-events: none;
+}
+.verse-line.theme-line[data-reader-line]::before { left: calc(7px - var(--original-line-gutter)); }
+.line-number-guide { margin: 0 0 7px; padding: 0 13px; color: #82767d; font-size: .65rem; line-height: 1.5; }
+@media (max-width: 600px) {
+  .speech-lines.has-line-numbers { --original-line-gutter: calc(var(--reading-size) * 2.1); }
+  .line-number-guide { padding: 0 9px; font-size: .62rem; }
+}
+
